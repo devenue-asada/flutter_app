@@ -28,22 +28,23 @@ class _TodoListPageState extends State<TodoListPage> {
         itemCount: todoList.length,
         itemBuilder: (context, index) {
           return Dismissible(
-              key: UniqueKey(),
-              child: Card(
-                child: ListTile(
-                  title: Text(todoList[index]),
-                ),
-              ));
+            key: UniqueKey(),
+            child: Card(
+              child: ListTile(
+                title: Text(todoList[index]),
+              ),
+            ),
+            onDismissed: (direction) {
+              setState(() => todoList.removeAt(index));
+            },
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final newTask = await Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) {
-              return TodoAddPage();
-            }),
+            MaterialPageRoute(builder: (context) => TodoAddPage()),
           );
-          debugPrint(newTask);
           if (newTask == null) return;
           todoList.add(newTask);
         },

@@ -49,9 +49,7 @@ class _TodoAddPageState extends State<TodoAddPage> {
               SizedBox(
                 width: 100,
                 child: TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: () => Navigator.of(context).pop(),
                   child: const Text(
                     '取り消す',
                   ),
