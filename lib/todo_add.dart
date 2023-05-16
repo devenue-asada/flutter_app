@@ -8,7 +8,6 @@ class TodoAddPage extends StatefulWidget {
 
 class _TodoAddPageState extends State<TodoAddPage> {
   String _task = '';
-  bool isValid = false;
   int maxLen = 50;
 
   viewTextLen() {
