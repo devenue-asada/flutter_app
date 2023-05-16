@@ -9,6 +9,15 @@ class TodoAddPage extends StatefulWidget {
 class _TodoAddPageState extends State<TodoAddPage> {
   String _task = '';
   bool isValid = false;
+  int maxLen = 50;
+
+  viewTextLen() {
+    return "${_task.length}/${maxLen}";
+  }
+
+  inputTextLenValid() {
+    return _task.isNotEmpty && _task.length <= maxLen;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,21 +30,24 @@ class _TodoAddPageState extends State<TodoAddPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               TextField(
                 onChanged: (String value) => setState(() {
-                  isValid = value.isNotEmpty;
                   _task = value;
                 }),
                 decoration: const InputDecoration(
                   hintText: "タスクを入力",
                 ),
               ),
+              Text(
+                viewTextLen(),
+                textAlign: TextAlign.right,
+              ),
               const SizedBox(height: 10),
               SizedBox(
                 width: 100,
                 child: ElevatedButton(
-                  onPressed: isValid
+                  onPressed: inputTextLenValid()
                       ? () {
                           debugPrint(_task);
                           Navigator.of(context).pop(_task);
@@ -43,16 +55,6 @@ class _TodoAddPageState extends State<TodoAddPage> {
                       : null,
                   child:
                       const Text('追加', style: TextStyle(color: Colors.white)),
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: 100,
-                child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text(
-                    '取り消す',
-                  ),
                 ),
               ),
             ],
