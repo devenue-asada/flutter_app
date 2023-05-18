@@ -13,14 +13,15 @@ class _TodoAddPageState extends State<TodoAddPage> {
   stt.SpeechToText speech = stt.SpeechToText();
   final _controller = TextEditingController();
   String _task = '';
+  String time = '';
   int maxLen = 100;
-  String lastWords = '';
   String lastError = '';
   String lastStatus = '';
   bool isRecording = false;
 
   viewTextLen() {
     return "${_task.length}/${maxLen}";
+    // return "$lastWords";
   }
 
   inputTextLenValid() {
@@ -28,35 +29,36 @@ class _TodoAddPageState extends State<TodoAddPage> {
   }
 
   Future<void> _speak() async {
+    setState(() => isRecording = true);
     isRecording = await speech.initialize(
         onError: errorListener, onStatus: statusListener);
-    if (!isRecording) return;
     speech.listen(onResult: resultListener);
   }
 
   Future<void> _stop() async {
+    setState(() => isRecording = false);
     speech.stop();
-    isRecording = false;
   }
 
   void resultListener(SpeechRecognitionResult result) {
-    setState(() {
-      lastWords = '$result.recognizedWords';
-      print("lastWords-----------");
-      print(lastWords);
-    });
+    if (mounted) {
+      setState(() {
+        _task = result.recognizedWords;
+        _controller.text = _task;
+      });
+    }
   }
 
   void errorListener(SpeechRecognitionError error) {
-    setState(() {
-      lastError = '${error.errorMsg} - ${error.permanent}';
-    });
+    if (mounted) {
+      setState(() => lastError = '${error.errorMsg} - ${error.permanent}');
+    }
   }
 
   void statusListener(String status) {
-    setState(() {
-      lastStatus = '$status';
-    });
+    if (mounted) {
+      setState(() => lastStatus = '$status');
+    }
   }
 
   @override
@@ -78,7 +80,7 @@ class _TodoAddPageState extends State<TodoAddPage> {
                   hintText: 'タスクを入力',
                   prefixIcon: IconButton(
                       onPressed: () => isRecording ? _stop() : _speak(),
-                      icon: Icon(Icons.mic,
+                      icon: Icon(isRecording ? Icons.mic : Icons.mic_none,
                           size: isRecording ? 26 : 24,
                           color: isRecording ? Colors.blue : Colors.grey)),
                   suffixIcon: IconButton(
