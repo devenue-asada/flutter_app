@@ -11,8 +11,7 @@ class TodoAddPage extends StatefulWidget {
 
 class _TodoAddPageState extends State<TodoAddPage> {
   stt.SpeechToText speech = stt.SpeechToText();
-  final _controller = TextEditingController();
-  String _task = '';
+  final _task = TextEditingController();
   String time = '';
   int maxLen = 100;
   String lastError = '';
@@ -20,11 +19,11 @@ class _TodoAddPageState extends State<TodoAddPage> {
   bool isRecording = false;
 
   viewTextLen() {
-    return "${_task.length}/${maxLen}";
+    return "${_task.text.length}/${maxLen}";
   }
 
   inputTextLenValid() {
-    return _task.isNotEmpty && _task.length <= maxLen;
+    return _task.text.isNotEmpty && _task.text.length <= maxLen;
   }
 
   Future<void> _speak() async {
@@ -41,10 +40,7 @@ class _TodoAddPageState extends State<TodoAddPage> {
 
   void resultListener(SpeechRecognitionResult result) {
     if (mounted) {
-      setState(() {
-        _task = result.recognizedWords;
-        _controller.text = _task;
-      });
+      setState(() => _task.text = result.recognizedWords);
     }
   }
 
@@ -73,26 +69,26 @@ class _TodoAddPageState extends State<TodoAddPage> {
             children: <Widget>[
               const SizedBox(height: 0),
               TextField(
-                controller: _controller,
-                onChanged: (String value) => setState(() => _task = value),
+                controller: _task,
+                onChanged: (String value) => setState(() => _task.text = value),
                 decoration: InputDecoration(
                   hintText: 'タスクを入力',
                   prefixIcon: IconButton(
                       onPressed: () => isRecording ? _stop() : _speak(),
                       icon: Icon(isRecording ? Icons.mic : Icons.mic_none,
                           size: isRecording ? 26 : 24,
-                          color: isRecording ? Colors.blue : Colors.grey)),
+                          color: isRecording ? Colors.blue : Colors.blue)),
                   suffixIcon: IconButton(
                     onPressed: () {
-                      _controller.clear();
+                      _task.clear();
                       setState(() {
-                        _task = "";
-                        _controller.text = _task;
+                        _task.text = "";
                         isRecording = false;
                       });
                     },
                     icon: Icon(Icons.clear,
-                        color: _task.length != 0 ? Colors.blue : Colors.grey),
+                        color:
+                            _task.text.isNotEmpty ? Colors.blue : Colors.grey),
                   ),
                   border: const OutlineInputBorder(),
                 ),
