@@ -10,11 +10,10 @@ class TodoAddPage extends StatefulWidget {
 }
 
 class _TodoAddPageState extends State<TodoAddPage> {
+  stt.SpeechToText speech = stt.SpeechToText();
   final _controller = TextEditingController();
   String _task = '';
   int maxLen = 100;
-
-  stt.SpeechToText speech = stt.SpeechToText();
   String lastWords = '';
   String lastError = '';
   String lastStatus = '';
@@ -43,6 +42,7 @@ class _TodoAddPageState extends State<TodoAddPage> {
   void resultListener(SpeechRecognitionResult result) {
     setState(() {
       lastWords = '$result.recognizedWords';
+      print("lastWords-----------");
       print(lastWords);
     });
   }
@@ -86,7 +86,8 @@ class _TodoAddPageState extends State<TodoAddPage> {
                       _controller.clear();
                       setState(() => _task = "");
                     },
-                    icon: const Icon(Icons.clear),
+                    icon: Icon(Icons.clear,
+                        color: _task.length != 0 ? Colors.blue : Colors.grey),
                   ),
                   border: const OutlineInputBorder(),
                 ),
