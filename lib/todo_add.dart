@@ -21,7 +21,6 @@ class _TodoAddPageState extends State<TodoAddPage> {
 
   viewTextLen() {
     return "${_task.length}/${maxLen}";
-    // return "$lastWords";
   }
 
   inputTextLenValid() {
@@ -86,7 +85,11 @@ class _TodoAddPageState extends State<TodoAddPage> {
                   suffixIcon: IconButton(
                     onPressed: () {
                       _controller.clear();
-                      setState(() => _task = "");
+                      setState(() {
+                        _task = "";
+                        _controller.text = _task;
+                        isRecording = false;
+                      });
                     },
                     icon: Icon(Icons.clear,
                         color: _task.length != 0 ? Colors.blue : Colors.grey),
