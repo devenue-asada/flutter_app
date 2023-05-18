@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-//import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class TodoAddPage extends StatefulWidget {
   @override
@@ -9,8 +10,15 @@ class TodoAddPage extends StatefulWidget {
 }
 
 class _TodoAddPageState extends State<TodoAddPage> {
+  final _controller = TextEditingController();
   String _task = '';
-  int maxLen = 50;
+  int maxLen = 100;
+
+  stt.SpeechToText speech = stt.SpeechToText();
+  String lastWords = '';
+  String lastError = '';
+  String lastStatus = '';
+  bool isRecording = false;
 
   viewTextLen() {
     return "${_task.length}/${maxLen}";
@@ -18,6 +26,37 @@ class _TodoAddPageState extends State<TodoAddPage> {
 
   inputTextLenValid() {
     return _task.isNotEmpty && _task.length <= maxLen;
+  }
+
+  Future<void> _speak() async {
+    isRecording = await speech.initialize(
+        onError: errorListener, onStatus: statusListener);
+    if (!isRecording) return;
+    speech.listen(onResult: resultListener);
+  }
+
+  Future<void> _stop() async {
+    speech.stop();
+    isRecording = false;
+  }
+
+  void resultListener(SpeechRecognitionResult result) {
+    setState(() {
+      lastWords = '$result.recognizedWords';
+      print(lastWords);
+    });
+  }
+
+  void errorListener(SpeechRecognitionError error) {
+    setState(() {
+      lastError = '${error.errorMsg} - ${error.permanent}';
+    });
+  }
+
+  void statusListener(String status) {
+    setState(() {
+      lastStatus = '$status';
+    });
   }
 
   @override
@@ -33,20 +72,24 @@ class _TodoAddPageState extends State<TodoAddPage> {
             children: <Widget>[
               const SizedBox(height: 0),
               TextField(
-                onChanged: (String value) => setState(() {
-                  _task = value;
-                }),
-                decoration: const InputDecoration(
-                  hintText: "タスクを入力",
-                  prefixIcon: FaIcon(
-                    FontAwesomeIcons.microphoneLines,
-                    size: 20,
+                controller: _controller,
+                onChanged: (String value) => setState(() => _task = value),
+                decoration: InputDecoration(
+                  hintText: 'タスクを入力',
+                  prefixIcon: IconButton(
+                      onPressed: () => isRecording ? _stop() : _speak(),
+                      icon: Icon(Icons.mic,
+                          size: isRecording ? 26 : 24,
+                          color: isRecording ? Colors.blue : Colors.grey)),
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      _controller.clear();
+                      setState(() => _task = "");
+                    },
+                    icon: const Icon(Icons.clear),
                   ),
+                  border: const OutlineInputBorder(),
                 ),
-              ),
-              const FaIcon(
-                FontAwesomeIcons.microphoneLines,
-                size: 20,
               ),
               Text(
                 viewTextLen(),
@@ -57,10 +100,7 @@ class _TodoAddPageState extends State<TodoAddPage> {
                 width: 100,
                 child: ElevatedButton(
                   onPressed: inputTextLenValid()
-                      ? () {
-                          debugPrint(_task);
-                          Navigator.of(context).pop(_task);
-                        }
+                      ? () => Navigator.of(context).pop(_task)
                       : null,
                   child:
                       const Text('追加', style: TextStyle(color: Colors.white)),
