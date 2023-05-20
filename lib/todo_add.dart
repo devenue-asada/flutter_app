@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:avatar_glow/avatar_glow.dart';
 
 class TodoAddPage extends StatefulWidget {
   @override
@@ -40,7 +41,9 @@ class _TodoAddPageState extends State<TodoAddPage> {
 
   void resultListener(SpeechRecognitionResult result) {
     if (mounted) {
-      setState(() => _task.text = result.recognizedWords);
+      setState(() {
+        _task.text = result.recognizedWords;
+      });
     }
   }
 
@@ -51,6 +54,8 @@ class _TodoAddPageState extends State<TodoAddPage> {
   }
 
   void statusListener(String status) {
+    print(">>>");
+    print(status);
     if (mounted) {
       setState(() => lastStatus = '$status');
     }
@@ -59,57 +64,75 @@ class _TodoAddPageState extends State<TodoAddPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('TODO追加'),
+      appBar: AppBar(
+        title: const Text('TODO追加'),
+      ),
+      body: Container(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const SizedBox(height: 0),
+            TextField(
+              controller: _task,
+              onChanged: (String value) => setState(() => _task.text = value),
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              decoration: InputDecoration(
+                hintText: 'タスクを入力',
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    _task.clear();
+                    setState(() {
+                      _task.text = "";
+                      isRecording = false;
+                    });
+                  },
+                  icon: Icon(Icons.clear,
+                      color: _task.text.isNotEmpty ? Colors.blue : Colors.grey),
+                ),
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            Text(
+              viewTextLen(),
+              textAlign: TextAlign.right,
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: 100,
+              child: ElevatedButton(
+                onPressed: inputTextLenValid()
+                    ? () => Navigator.of(context).pop(_task)
+                    : null,
+                child: const Text('追加', style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          ],
         ),
-        body: Container(
-          padding: const EdgeInsets.all(70),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const SizedBox(height: 0),
-              TextField(
-                controller: _task,
-                onChanged: (String value) => setState(() => _task.text = value),
-                decoration: InputDecoration(
-                  hintText: 'タスクを入力',
-                  prefixIcon: IconButton(
-                      onPressed: () => isRecording ? _stop() : _speak(),
-                      icon: Icon(isRecording ? Icons.mic : Icons.mic_none,
-                          size: isRecording ? 26 : 24,
-                          color: isRecording ? Colors.blue : Colors.blue)),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      _task.clear();
-                      setState(() {
-                        _task.text = "";
-                        isRecording = false;
-                      });
-                    },
-                    icon: Icon(Icons.clear,
-                        color:
-                            _task.text.isNotEmpty ? Colors.blue : Colors.grey),
-                  ),
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              Text(
-                viewTextLen(),
-                textAlign: TextAlign.right,
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: 100,
-                child: ElevatedButton(
-                  onPressed: inputTextLenValid()
-                      ? () => Navigator.of(context).pop(_task)
-                      : null,
-                  child:
-                      const Text('追加', style: TextStyle(color: Colors.white)),
-                ),
-              ),
-            ],
+      ),
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.miniCenterFloat,
+      floatingActionButton: AvatarGlow(
+        endRadius: 75.0,
+        animate: isRecording,
+        duration: const Duration(milliseconds: 2000),
+        glowColor: Colors.blue,
+        repeatPauseDuration: const Duration(milliseconds: 100),
+        showTwoGlows: true,
+        child: GestureDetector(
+          onTapDown: (details) async => await _speak(),
+          onTapUp: (details) async => await _stop(),
+          child: CircleAvatar(
+            // backgroundColor: Colors.blue,
+            radius: 35,
+            child: Icon(
+              isRecording ? Icons.mic : Icons.mic_none,
+              color: Colors.white,
+            ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
