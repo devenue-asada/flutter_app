@@ -54,8 +54,6 @@ class _TodoAddPageState extends State<TodoAddPage> {
   }
 
   void statusListener(String status) {
-    print(">>>");
-    print(status);
     if (mounted) {
       setState(() => lastStatus = '$status');
     }
@@ -65,47 +63,43 @@ class _TodoAddPageState extends State<TodoAddPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TODO追加'),
+        title: const Text('ADD TODO'),
       ),
       body: Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(12),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            const SizedBox(height: 0),
             TextField(
               controller: _task,
               onChanged: (String value) => setState(() => _task.text = value),
               keyboardType: TextInputType.multiline,
               maxLines: null,
               decoration: InputDecoration(
-                hintText: 'タスクを入力',
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color:
+                          _task.text.length == 0 ? Colors.grey : Colors.blue),
+                ),
+                hintText: 'タスクを入力してください',
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                labelText: isRecording ? '音声入力中...' : null,
                 suffixIcon: IconButton(
-                  onPressed: () {
-                    _task.clear();
-                    setState(() {
-                      _task.text = "";
-                      isRecording = false;
-                    });
-                  },
-                  icon: Icon(Icons.clear,
-                      color: _task.text.isNotEmpty ? Colors.blue : Colors.grey),
+                  onPressed: inputTextLenValid()
+                      ? () => Navigator.of(context).pop(_task)
+                      : null,
+                  icon: Icon(Icons.done,
+                      color:
+                          _task.text.isNotEmpty ? Colors.green : Colors.grey),
                 ),
                 border: const OutlineInputBorder(),
               ),
             ),
-            Text(
-              viewTextLen(),
-              textAlign: TextAlign.right,
-            ),
-            const SizedBox(height: 10),
             SizedBox(
-              width: 100,
-              child: ElevatedButton(
-                onPressed: inputTextLenValid()
-                    ? () => Navigator.of(context).pop(_task)
-                    : null,
-                child: const Text('追加', style: TextStyle(color: Colors.white)),
+              width: double.infinity,
+              child: Text(
+                viewTextLen(),
+                textAlign: TextAlign.right,
               ),
             ),
           ],

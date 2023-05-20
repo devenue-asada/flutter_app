@@ -16,7 +16,7 @@ class _TodoListPageState extends State<TodoListPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('TODO一覧'),
+        title: const Text('TODO LIST'),
         actions: <Widget>[
           IconButton(
             onPressed: () {},
