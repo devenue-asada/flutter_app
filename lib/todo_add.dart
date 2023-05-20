@@ -12,19 +12,22 @@ class TodoAddPage extends StatefulWidget {
 
 class _TodoAddPageState extends State<TodoAddPage> {
   stt.SpeechToText speech = stt.SpeechToText();
-  final _task = TextEditingController();
+
+  final _taskController = TextEditingController();
+
   String time = '';
-  int maxLen = 100;
+  int maxLen = 300;
   String lastError = '';
   String lastStatus = '';
   bool isRecording = false;
 
   viewTextLen() {
-    return "${_task.text.length}/${maxLen}";
+    return "${_taskController.text.length}/${maxLen}";
   }
 
   inputTextLenValid() {
-    return _task.text.isNotEmpty && _task.text.length <= maxLen;
+    return _taskController.text.isNotEmpty &&
+        _taskController.text.length <= maxLen;
   }
 
   Future<void> _speak() async {
@@ -42,7 +45,7 @@ class _TodoAddPageState extends State<TodoAddPage> {
   void resultListener(SpeechRecognitionResult result) {
     if (mounted) {
       setState(() {
-        _task.text = result.recognizedWords;
+        _taskController.text = result.recognizedWords;
       });
     }
   }
@@ -66,40 +69,52 @@ class _TodoAddPageState extends State<TodoAddPage> {
         title: const Text('ADD TODO'),
       ),
       body: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.only(top: 20, left: 12, right: 12),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            TextField(
-              controller: _task,
-              onChanged: (String value) => setState(() => _task.text = value),
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-              decoration: InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color:
-                          _task.text.length == 0 ? Colors.grey : Colors.blue),
-                ),
-                hintText: 'タスクを入力してください',
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                labelText: isRecording ? '音声入力中...' : null,
-                suffixIcon: IconButton(
-                  onPressed: inputTextLenValid()
-                      ? () => Navigator.of(context).pop(_task)
-                      : null,
-                  icon: Icon(Icons.done,
-                      color:
-                          _task.text.isNotEmpty ? Colors.green : Colors.grey),
-                ),
-                border: const OutlineInputBorder(),
-              ),
-            ),
             SizedBox(
               width: double.infinity,
               child: Text(
                 viewTextLen(),
                 textAlign: TextAlign.right,
+              ),
+            ),
+            TextField(
+              controller: _taskController,
+              onChanged: (String value) {
+                setState(() {
+                  _taskController.selection = TextSelection.fromPosition(
+                    TextPosition(offset: _taskController.text.length),
+                  );
+                });
+              },
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: _taskController.text.isEmpty
+                          ? Colors.grey
+                          : Colors.blue),
+                ),
+                hintText: 'タスクを入力してください',
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                labelText: isRecording ? '音声入力中...' : null,
+                labelStyle: TextStyle(
+                  color:
+                      _taskController.text.isEmpty ? Colors.grey : Colors.blue,
+                ),
+                suffixIcon: IconButton(
+                  onPressed: inputTextLenValid()
+                      ? () => Navigator.of(context).pop(_taskController)
+                      : null,
+                  icon: Icon(Icons.done,
+                      color: _taskController.text.isNotEmpty
+                          ? Colors.green
+                          : Colors.grey),
+                ),
+                border: const OutlineInputBorder(),
               ),
             ),
           ],
@@ -118,7 +133,6 @@ class _TodoAddPageState extends State<TodoAddPage> {
           onTapDown: (details) async => await _speak(),
           onTapUp: (details) async => await _stop(),
           child: CircleAvatar(
-            // backgroundColor: Colors.blue,
             radius: 35,
             child: Icon(
               isRecording ? Icons.mic : Icons.mic_none,
