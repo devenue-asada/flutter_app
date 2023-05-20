@@ -46,7 +46,7 @@ class _TodoListPageState extends State<TodoListPage> {
             MaterialPageRoute(builder: (context) => TodoAddPage()),
           );
           if (newTask == null) return;
-          todoList.add(newTask.text);
+          setState(() => todoList.insert(0, newTask.text));
         },
         child: const Icon(Icons.add),
       ),
