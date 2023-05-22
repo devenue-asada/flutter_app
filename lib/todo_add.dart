@@ -45,7 +45,7 @@ class _TodoAddPageState extends State<TodoAddPage> {
   void resultListener(SpeechRecognitionResult result) {
     if (mounted) {
       setState(() {
-        _taskController.text += result.recognizedWords;
+        _taskController.text = result.recognizedWords;
       });
     }
   }
