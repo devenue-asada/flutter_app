@@ -17,19 +17,19 @@ class TodoListPage extends StatefulWidget {
 class _TodoListPageState extends State<TodoListPage>
     with WidgetsBindingObserver {
   List<String> todoList = [];
-  final FlutterLocalNotificationsPlugin _noticePlug =
-      FlutterLocalNotificationsPlugin();
+
+  final _flnp = FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     _init();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -66,16 +66,20 @@ class _TodoListPageState extends State<TodoListPage>
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
-    await _noticePlug.initialize(initializationSettings);
+    await _flnp.initialize(initializationSettings);
   }
 
-  Future<void> _cancelNotification() async {
-    print("can");
-    // await _noticePlug.cancelAll();
+  Future<void> _cancelAllNotification() async {
+    print("cancelAll");
+    await _flnp.cancelAll();
+  }
+
+  Future<void> _cancelNotification(id) async {
+    await _flnp.cancel(id);
   }
 
   Future<void> _requestPermissions() async {
-    await _noticePlug
+    await _flnp
         .resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin>()
         ?.requestPermissions(
@@ -90,6 +94,12 @@ class _TodoListPageState extends State<TodoListPage>
     required int minutes,
     required message,
   }) async {
+    //通知済リスト取得
+    final List<ActiveNotification> execList =
+        await _flnp.getActiveNotifications();
+    //通知済のIDを削除
+    for (var item in execList) await _cancelNotification(item.id);
+
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
@@ -99,10 +109,19 @@ class _TodoListPageState extends State<TodoListPage>
       hour,
       minutes,
     );
-    print(scheduledDate);
 
-    await _noticePlug.zonedSchedule(
-      0,
+    int setId = 0;
+    //通知前リスト取得
+    final List<PendingNotificationRequest> waitingList =
+        await _flnp.pendingNotificationRequests();
+    if (waitingList.isNotEmpty) {
+      //リストの最後（最大値）+1を作成するIDにセット
+      waitingList.sort(((a, b) => a.id.compareTo(b.id)));
+      setId = waitingList.last.id + 1;
+    }
+
+    await _flnp.zonedSchedule(
+      setId,
       'TODO APP',
       message,
       scheduledDate,
@@ -158,10 +177,7 @@ class _TodoListPageState extends State<TodoListPage>
       body: Center(
         child: ElevatedButton(
           onPressed: () async {
-            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>");
-            await _cancelNotification();
             await _requestPermissions();
-
             final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
             await _registerMessage(
               hour: now.hour,
