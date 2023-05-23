@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -9,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:table_calendar/table_calendar.dart';
 
 class TodoAddPage extends StatefulWidget {
   @override
@@ -17,14 +17,16 @@ class TodoAddPage extends StatefulWidget {
 
 class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
   stt.SpeechToText speech = stt.SpeechToText();
-
   final _taskController = TextEditingController();
-
   String time = '';
   int maxLen = 300;
   String lastError = '';
   String lastStatus = '';
   bool isRecording = false;
+
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _forcusedDay = DateTime.now();
+  DateTime? _selectedDay;
 
   final _flnp = FlutterLocalNotificationsPlugin();
 
@@ -281,6 +283,35 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
                 ),
                 border: const OutlineInputBorder(),
               ),
+            ),
+            TableCalendar(
+              locale: 'ja_JP',
+              firstDay: DateTime.utc(2010, 10, 16),
+              lastDay: DateTime.utc(2030, 3, 14),
+              focusedDay: DateTime.now(),
+              calendarFormat: _calendarFormat,
+              selectedDayPredicate: (day) {
+                return isSameDay(_selectedDay, day);
+              },
+              onDaySelected: (selectedDay, forcusedDay) {
+                if (!isSameDay(_selectedDay, selectedDay)) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _forcusedDay = forcusedDay;
+                  });
+                }
+              },
+              onFormatChanged: (format) {
+                if (_calendarFormat != format) {
+                  // Call `setState()` when updating calendar format
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                }
+              },
+              onPageChanged: (forcusedDay) {
+                _forcusedDay = forcusedDay;
+              },
             ),
           ],
         ),
