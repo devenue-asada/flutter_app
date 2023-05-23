@@ -40,17 +40,20 @@ class _TodoListPageState extends State<TodoListPage>
     }
   }
 
+  //初期化メソッド
   Future<void> _init() async {
     await _configureLocalTimeZone();
     await _initializeNotification();
   }
 
+  //タイムゾーン
   Future<void> _configureLocalTimeZone() async {
     tz.initializeTimeZones();
     final String? timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName!));
   }
 
+  //通知初期設定
   Future<void> _initializeNotification() async {
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
@@ -69,15 +72,18 @@ class _TodoListPageState extends State<TodoListPage>
     await _flnp.initialize(initializationSettings);
   }
 
+  //通知をID単位で削除
+  Future<void> _cancelNotification(id) async {
+    await _flnp.cancel(id);
+  }
+
+  //通知をすべて削除
   Future<void> _cancelAllNotification() async {
     print("cancelAll");
     await _flnp.cancelAll();
   }
 
-  Future<void> _cancelNotification(id) async {
-    await _flnp.cancel(id);
-  }
-
+  //アラート・バッチ設定
   Future<void> _requestPermissions() async {
     await _flnp
         .resolvePlatformSpecificImplementation<
@@ -89,7 +95,11 @@ class _TodoListPageState extends State<TodoListPage>
         );
   }
 
+  //通知登録
   Future<void> _registerMessage({
+    required int year,
+    required int month,
+    required int day,
     required int hour,
     required int minutes,
     required message,
@@ -100,12 +110,11 @@ class _TodoListPageState extends State<TodoListPage>
     //通知済のIDを削除
     for (var item in execList) await _cancelNotification(item.id);
 
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
-      now.year,
-      now.month,
-      now.day,
+      year,
+      month,
+      day,
       hour,
       minutes,
     );
@@ -159,35 +168,35 @@ class _TodoListPageState extends State<TodoListPage>
           ),
         ],
       ),
-      // body: ListView.builder(
-      //   itemCount: todoList.length,
-      //   itemBuilder: (context, index) {
-      //     return Dismissible(
-      //         key: UniqueKey(),
-      //         child: Card(
-      //           child: ListTile(
-      //             title: Text(todoList[index]),
-      //           ),
-      //         ),
-      //         onDismissed: (direction) {
-      //           setState(() => todoList.removeAt(index));
-      //         });
-      //   },
-      // ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            await _requestPermissions();
-            final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-            await _registerMessage(
-              hour: now.hour,
-              minutes: now.minute + 1,
-              message: 'Hello, world!',
-            );
-          },
-          child: const Text('Show Notification'),
-        ),
+      body: ListView.builder(
+        itemCount: todoList.length,
+        itemBuilder: (context, index) {
+          return Dismissible(
+              key: UniqueKey(),
+              child: Card(
+                child: ListTile(
+                  title: Text(todoList[index]),
+                ),
+              ),
+              onDismissed: (direction) {
+                setState(() => todoList.removeAt(index));
+              });
+        },
       ),
+      // body: Center(
+      //   child: ElevatedButton(
+      //     onPressed: () async {
+      //       await _requestPermissions();
+      //       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+      //       await _registerMessage(
+      //         hour: now.hour,
+      //         minutes: now.minute + 1,
+      //         message: 'Hello, world!',
+      //       );
+      //     },
+      //     child: const Text('Show Notification'),
+      //   ),
+      // ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final newTask = await Navigator.of(context).push(
