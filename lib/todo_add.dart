@@ -23,6 +23,11 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
   String lastError = '';
   String lastStatus = '';
   bool isRecording = false;
+  final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+  int year = 0;
+  int month = 0;
+  int day = 0;
+  int hour = 0;
 
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _forcusedDay = DateTime.now();
@@ -35,6 +40,10 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _init();
+    year = now.year;
+    month = now.month;
+    day = now.day;
+    hour = now.hour;
   }
 
   @override
@@ -266,6 +275,7 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
                           await _requestPermissions();
                           final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
                           //通知時刻セット
+                          print(year);
                           await _registerMessage(
                             year: now.year,
                             month: now.month,
@@ -286,9 +296,9 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
             ),
             TableCalendar(
               locale: 'ja_JP',
-              firstDay: DateTime.utc(2010, 10, 16),
-              lastDay: DateTime.utc(2030, 3, 14),
-              focusedDay: DateTime.now(),
+              firstDay: now,
+              lastDay: DateTime.utc(year + 10, 12, 31),
+              focusedDay: now,
               calendarFormat: _calendarFormat,
               selectedDayPredicate: (day) {
                 return isSameDay(_selectedDay, day);

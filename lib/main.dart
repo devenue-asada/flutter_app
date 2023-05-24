@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/todo_list.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() {
-  runApp(const MyTodoApp());
+  initializeDateFormatting('ja').then((_) => runApp(const MyTodoApp()));
 }
 
 class MyTodoApp extends StatelessWidget {
