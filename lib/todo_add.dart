@@ -8,6 +8,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:intl/intl.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
+    as picker;
 
 class TodoAddPage extends StatefulWidget {
   @override
@@ -15,30 +18,31 @@ class TodoAddPage extends StatefulWidget {
 }
 
 class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
-  stt.SpeechToText speech = stt.SpeechToText();
   final _taskController = TextEditingController();
-  String time = '';
   int maxLen = 300;
+
+  final _flnp = FlutterLocalNotificationsPlugin();
+
+  stt.SpeechToText speech = stt.SpeechToText();
   String lastError = '';
   String lastStatus = '';
   bool isRecording = false;
-  final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-  int year = 0;
-  int month = 0;
-  int day = 0;
-  int hour = 0;
 
-  final _flnp = FlutterLocalNotificationsPlugin();
+  DateTime now = DateTime.now();
+  var formatter = new DateFormat('yyyy/MM/dd(E) HH:mm');
+  int year = DateTime.now().year;
+  int month = DateTime.now().month;
+  int day = DateTime.now().day;
+  int hour = DateTime.now().hour;
+  int minute = DateTime.now().minute;
+  var _initNoticeDateTime = DateTime(DateTime.now().year, DateTime.now().month,
+      DateTime.now().day, DateTime.now().hour + 1, DateTime.now().minute, 0);
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _init();
-    year = now.year;
-    month = now.month;
-    day = now.day;
-    hour = now.hour;
   }
 
   @override
@@ -143,6 +147,7 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
       setId = waitingList.last.id + 1;
     }
 
+    //通知スケジュールを設定
     await _flnp.zonedSchedule(
       setId,
       'TODO APP',
@@ -228,34 +233,47 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            SizedBox(
-              width: double.infinity,
-              child: Text(
-                viewTextLen(),
-                textAlign: TextAlign.right,
-              ),
-            ),
             Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final selectedDate = await showDatePicker(
-                    locale: const Locale('ja', 'JP'),
-                    context: context,
-                    initialDate: now,
-                    firstDate: now,
-                    lastDate: DateTime(year + 10, 12, 31),
-                  );
-                  if (selectedDate != null) {
-                    setState(() {
-                      var hoge = selectedDate;
-                    });
-                  }
-                },
-                child: Text(
-                  "test",
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.circle_notifications, color: Colors.black87),
+                  TextButton(
+                    onPressed: () {
+                      picker.DatePicker.showDateTimePicker(context,
+                          showTitleActions: true,
+                          minTime: DateTime(year, month, day, hour, minute),
+                          maxTime: DateTime(year + 10, 12, 31, hour, minute),
+                          onChanged: (date) {}, onConfirm: (date) {
+                        setState(() {
+                          print(date);
+                          _initNoticeDateTime = date;
+                        });
+                      },
+                          currentTime: _initNoticeDateTime,
+                          locale: picker.LocaleType.jp);
+                    },
+                    child: Text(
+                      formatter.format(_initNoticeDateTime),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
+            const SizedBox(
+              height: 5,
+            ),
+            // SizedBox(
+            //   width: double.infinity,
+            //   child: Text(
+            //     viewTextLen(),
+            //     textAlign: TextAlign.right,
+            //   ),
+            // ),
             TextField(
               controller: _taskController,
               onChanged: (String value) {
@@ -293,11 +311,11 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
                           //通知時刻セット
                           print(year);
                           await _registerMessage(
-                            year: now.year,
-                            month: now.month,
-                            day: now.day,
-                            hour: now.hour,
-                            minutes: now.minute + 1,
+                            year: _initNoticeDateTime.year,
+                            month: _initNoticeDateTime.month,
+                            day: _initNoticeDateTime.day,
+                            hour: _initNoticeDateTime.hour,
+                            minutes: _initNoticeDateTime.minute + 1,
                             message: '${_taskController.text}',
                           );
                         }
