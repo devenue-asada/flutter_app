@@ -8,9 +8,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:table_calendar/table_calendar.dart';
-import 'package:flutter_app/modules/custom_modal.dart';
-import 'package:flutter_app/modules/modal_calendor.dart';
 
 class TodoAddPage extends StatefulWidget {
   @override
@@ -238,6 +235,27 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
                 textAlign: TextAlign.right,
               ),
             ),
+            Center(
+              child: ElevatedButton(
+                onPressed: () async {
+                  final selectedDate = await showDatePicker(
+                    locale: const Locale('ja', 'JP'),
+                    context: context,
+                    initialDate: now,
+                    firstDate: now,
+                    lastDate: DateTime(year + 10, 12, 31),
+                  );
+                  if (selectedDate != null) {
+                    setState(() {
+                      var hoge = selectedDate;
+                    });
+                  }
+                },
+                child: Text(
+                  "test",
+                ),
+              ),
+            ),
             TextField(
               controller: _taskController,
               onChanged: (String value) {
@@ -306,8 +324,8 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
         showTwoGlows: true,
         child: GestureDetector(
           // 音声入力
-          onTap: () => {CalendarModal(context).showCalendarModal()},
-          // onTapDown: (details) async => await _speak(),
+          // onTap: () => {CalendarModal(context).showCalendarModal()},
+          onTapDown: (details) async => await _speak(),
           onTapUp: (details) async => await _stop(),
           child: CircleAvatar(
             radius: 35,

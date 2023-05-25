@@ -40,8 +40,8 @@ dependencies:
   flutter_local_notifications: ^14.1.0
   flutter_native_timezone: ^2.0.0
   flutter_app_badger: ^1.5.0
-  table_calendar: ^3.0.9
-  intl: ^0.18.1
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
