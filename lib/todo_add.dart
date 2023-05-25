@@ -28,8 +28,7 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
   String lastStatus = '';
   bool isRecording = false;
 
-  DateTime now = DateTime.now();
-  var formatter = new DateFormat('yyyy/MM/dd(E) HH:mm');
+  final formatter = new DateFormat('yyyy年MM月dd日(E) HH:mm', 'ja');
   int year = DateTime.now().year;
   int month = DateTime.now().month;
   int day = DateTime.now().day;
@@ -307,7 +306,6 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
                           Navigator.of(context).pop(_taskController);
                           // 通知処理
                           await _requestPermissions();
-                          final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
                           //通知時刻セット
                           print(year);
                           await _registerMessage(
