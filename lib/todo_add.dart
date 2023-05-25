@@ -313,7 +313,7 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
                             month: _initNoticeDateTime.month,
                             day: _initNoticeDateTime.day,
                             hour: _initNoticeDateTime.hour,
-                            minutes: _initNoticeDateTime.minute + 1,
+                            minutes: _initNoticeDateTime.minute,
                             message: '${_taskController.text}',
                           );
                         }
