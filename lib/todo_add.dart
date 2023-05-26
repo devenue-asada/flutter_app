@@ -96,7 +96,6 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
 
   //通知をすべて削除
   Future<void> _cancelAllNotification() async {
-    print("cancelAll");
     await _flnp.cancelAll();
   }
 
@@ -245,7 +244,6 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
                           maxTime: DateTime(year + 10, 12, 31, hour, minute),
                           onChanged: (date) {}, onConfirm: (date) {
                         setState(() {
-                          print(date);
                           _initNoticeDateTime = date;
                         });
                       },
@@ -307,7 +305,6 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
                           // 通知処理
                           await _requestPermissions();
                           //通知時刻セット
-                          print(year);
                           await _registerMessage(
                             year: _initNoticeDateTime.year,
                             month: _initNoticeDateTime.month,

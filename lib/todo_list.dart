@@ -79,7 +79,6 @@ class _TodoListPageState extends State<TodoListPage>
 
   //通知をすべて削除
   Future<void> _cancelAllNotification() async {
-    print("cancelAll");
     await _flnp.cancelAll();
   }
 
@@ -174,6 +173,8 @@ class _TodoListPageState extends State<TodoListPage>
           return Dismissible(
               key: UniqueKey(),
               child: Card(
+                color: Colors.white,
+                margin: EdgeInsets.only(top: 7, left: 5, right: 5),
                 child: ListTile(
                   title: Text(todoList[index]),
                 ),
@@ -183,27 +184,15 @@ class _TodoListPageState extends State<TodoListPage>
               });
         },
       ),
-      // body: Center(
-      //   child: ElevatedButton(
-      //     onPressed: () async {
-      //       await _requestPermissions();
-      //       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-      //       await _registerMessage(
-      //         hour: now.hour,
-      //         minutes: now.minute + 1,
-      //         message: 'Hello, world!',
-      //       );
-      //     },
-      //     child: const Text('Show Notification'),
-      //   ),
-      // ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final newTask = await Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => TodoAddPage()),
           );
+          print(newTask);
           if (newTask == null) return;
           setState(() => todoList.insert(0, newTask.text));
+          print(todoList.length);
         },
         child: const Icon(Icons.add),
       ),
