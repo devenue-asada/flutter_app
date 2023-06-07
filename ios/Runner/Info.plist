@@ -55,5 +55,9 @@
 	<array>
 		<string>ja</string>
 	</array>
+	<key>com.apple.developer.nfc.readersession.felica.systemcodes</key>
+    <array>
+      <string>12fc</string>
+    </array>
 </dict>
 </plist>
