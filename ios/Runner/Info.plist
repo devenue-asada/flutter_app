@@ -55,9 +55,7 @@
 	<array>
 		<string>ja</string>
 	</array>
-	<key>com.apple.developer.nfc.readersession.felica.systemcodes</key>
-    <array>
-      <string>12fc</string>
-    </array>
+	<key>NFCReaderUsageDescription</key>
+	<string>メッセージの読み取り</string>
 </dict>
 </plist>
