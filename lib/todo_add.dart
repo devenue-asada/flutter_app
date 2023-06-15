@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
     as picker;
 import 'package:nfc_manager/nfc_manager.dart';
+import 'dart:convert';
 
 class TodoAddPage extends StatefulWidget {
   @override
@@ -28,6 +29,7 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
   String lastError = '';
   String lastStatus = '';
   bool isRecording = false;
+  var tagValue = '';
 
   final formatter = new DateFormat('yyyy年MM月dd日(E) HH:mm', 'ja');
   int year = DateTime.now().year;
@@ -45,13 +47,32 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
   }
 
   ValueNotifier<dynamic> result = ValueNotifier(null);
+
+  //NFC読み取り
   void _tagRead() {
-    print("<<<<<<<<<<<<<<<<<<<<<");
-    NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
-      print(tag);
-      result.value = tag.data;
-      NfcManager.instance.stopSession();
-    });
+    NfcManager.instance.startSession(
+      pollingOptions: {NfcPollingOption.iso14443, NfcPollingOption.iso15693},
+      alertMessage: "NFCタグを近づけてください",
+      onDiscovered: (NfcTag tag) async {
+        final ndef = Ndef.from(tag);
+        if (ndef == null) {
+          await NfcManager.instance.stopSession(errorMessage: 'error');
+          return;
+        } else {
+          final readTag = await ndef.read();
+          final uint8List = readTag.records.first.payload;
+          setState(() {
+            //日本語が含まれると文字化けするのでutf8でdecode、不要な開始文字を削除
+            _taskController.text = utf8.decode(uint8List).substring(3);
+          });
+          await NfcManager.instance.stopSession();
+        }
+      },
+      onError: (dynamic e) async {
+        debugPrint('NFC error: $e');
+        await NfcManager.instance.stopSession(errorMessage: 'error');
+      },
+    );
   }
 
   void _ndefWrite() {
@@ -63,14 +84,8 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
         return;
       }
 
-      NdefMessage message = NdefMessage([
-        NdefRecord.createText('Hello World!')
-        // NdefRecord.createUri(Uri.parse('https://flutter.dev')),
-        // NdefRecord.createMime(
-        //     'text/plain', Uint8List.fromList('Hello'.codeUnits)),
-        // NdefRecord.createExternal(
-        //     'com.example', 'mytype', Uint8List.fromList('mydata'.codeUnits)),
-      ]);
+      NdefMessage message =
+          NdefMessage([NdefRecord.createText('Hello World!')]);
 
       try {
         await ndef.write(message);
@@ -325,31 +340,6 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
             const SizedBox(
               height: 5,
             ),
-            Flexible(
-              flex: 3,
-              child: GridView.count(
-                padding: EdgeInsets.all(4),
-                crossAxisCount: 2,
-                childAspectRatio: 4,
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 4,
-                children: [
-                  ElevatedButton(child: Text('Tag Read'), onPressed: _tagRead),
-                  ElevatedButton(
-                      child: Text('Ndef Write'), onPressed: _ndefWrite),
-                  ElevatedButton(
-                      child: Text('Ndef Write Lock'),
-                      onPressed: _ndefWriteLock),
-                ],
-              ),
-            ),
-            // SizedBox(
-            //   width: double.infinity,
-            //   child: Text(
-            //     viewTextLen(),
-            //     textAlign: TextAlign.right,
-            //   ),
-            // ),
             TextField(
               controller: _taskController,
               onChanged: (String value) {
@@ -400,6 +390,19 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
                           : Colors.grey),
                 ),
                 border: const OutlineInputBorder(),
+              ),
+            ),
+            Flexible(
+              flex: 3,
+              child: GridView.count(
+                padding: EdgeInsets.all(4),
+                crossAxisCount: 2,
+                childAspectRatio: 4,
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 4,
+                children: [
+                  ElevatedButton(child: Text('NFC読み取り'), onPressed: _tagRead),
+                ],
               ),
             ),
           ],

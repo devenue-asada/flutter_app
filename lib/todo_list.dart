@@ -189,10 +189,8 @@ class _TodoListPageState extends State<TodoListPage>
           final newTask = await Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => TodoAddPage()),
           );
-          print(newTask);
           if (newTask == null) return;
           setState(() => todoList.insert(0, newTask.text));
-          print(todoList.length);
         },
         child: const Icon(Icons.add),
       ),

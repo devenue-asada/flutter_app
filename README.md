@@ -10,3 +10,10 @@
 ```
 flutter run
 ```
+
+## note
+
+### nfc
+
+- ios
+  xcode > runner > signin & capabilities > near field communication tag reading
