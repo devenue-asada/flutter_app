@@ -3,6 +3,7 @@
 - 音声入力
 - ローカル通知
 - 通知数バッチ
+- nfc
 - state only
 
 ## Getting Started
