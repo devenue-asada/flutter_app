@@ -12,6 +12,31 @@
 flutter run
 ```
 
+## deploy
+
+- Step1.バージョン更新
+  pubspec.yaml
+
+```
+version: x.x.x+n
+```
+
+- Step2.アプリビルド
+
+```
+$ flutter clean
+$ flutter build ios
+```
+
+xxx -> version
+n -> build no
+
+- Step3.xcode で archive 作成
+  Product > archive
+
+- Step4.作成した archive をデプロイ
+  Windows > Organizer > Distribute App > Upload
+
 ## note
 
 ### nfc
