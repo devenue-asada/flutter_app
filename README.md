@@ -12,7 +12,7 @@
 flutter run
 ```
 
-## deploy
+## ios deploy
 
 - Step1.バージョン更新
   pubspec.yaml
@@ -39,10 +39,28 @@ $ flutter build ios
 
 ## note
 
+- 対応する plist にアプリケーション・機能単位の権限設定
+
 ### nfc
 
 - ios
-  xcode > runner > signin & capabilities > near field communication tag reading
+  xcode > runner > signin & capabilities > near field communication tag reading 設定必須
+
+  ```
+  ios/Runner/Runner.entitlements
+
+  <dict>
+  	<key>aps-environment</key>
+  	<string>development</string>
+  	<key>com.apple.developer.devicecheck.appattest-environment</key>
+  	<string>development</string>
+  	<key>com.apple.developer.nfc.readersession.formats</key>
+  	<array>
+  		<string>NDEF</string>
+  		<string>TAG</string>
+  	</array>
+  </dict>
+  ```
 
 ### icon
 
