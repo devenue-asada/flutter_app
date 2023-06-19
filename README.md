@@ -21,6 +21,9 @@ flutter run
 version: x.x.x+n
 ```
 
+xxx -> version
+n -> build no
+
 - Step2.アプリビルド
 
 ```
@@ -28,13 +31,10 @@ $ flutter clean
 $ flutter build ios
 ```
 
-xxx -> version
-n -> build no
-
 - Step3.xcode で archive 作成
   Product > archive
 
-- Step4.作成した archive をデプロイ
+- Step4.xcode で作成した archive をデプロイ
   Windows > Organizer > Distribute App > Upload
 
 ## note
