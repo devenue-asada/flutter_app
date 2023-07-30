@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -13,6 +14,10 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
     as picker;
 import 'package:nfc_manager/nfc_manager.dart';
 import 'dart:convert';
+
+import 'package:barcode_scan2/platform_wrapper.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:flutter/services.dart';
 
 class TodoAddPage extends StatefulWidget {
   @override
@@ -296,6 +301,48 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
         _taskController.text.length <= maxLen;
   }
 
+  ScanResult? scanResult;
+
+  final _flashOnController = TextEditingController(text: 'フラッシュ ON');
+  final _flashOffController = TextEditingController(text: 'フラッシュ OFF');
+  final _cancelController = TextEditingController(text: 'キャンセル');
+
+  String readData = "";
+
+  Future scan() async {
+    // try {
+    var scan = await BarcodeScanner.scan(
+      options: ScanOptions(
+        strings: {
+          'cancel': _cancelController.text,
+          'flash_on': _flashOnController.text,
+          'flash_off': _flashOffController.text,
+        },
+      ),
+    );
+
+    // var scan = await BarcodeScanner.scan();
+    print(scan.type); // The scan type (barcode, cancelled, failed)
+    print(scan.rawContent); // The barcode content
+    print(scan.format); // The barcode format (as enum)
+    print(scan.formatNote);
+    // } on PlatformException catch (e) {
+    //   if (e.code == BarcodeScanner.cameraAccessDenied) {
+    //     setState(() {
+    //       readData = 'Camera permissions are not valid.';
+    //     });
+    //   } else {
+    //     debugPrint(readData);
+    //     setState(() => {readData = 'Unexplained error : $e'});
+    //   }
+    // } on FormatException {
+    //   setState(() => readData =
+    //       'Failed to read (I used the back button before starting the scan).');
+    // } catch (e) {
+    //   setState(() => readData = 'Unknown error : $e');
+    // }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -408,29 +455,34 @@ class _TodoAddPageState extends State<TodoAddPage> with WidgetsBindingObserver {
           ],
         ),
       ),
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterFloat,
-      floatingActionButton: AvatarGlow(
-        endRadius: 75.0,
-        animate: isRecording,
-        duration: const Duration(milliseconds: 2000),
-        glowColor: Colors.blue,
-        repeatPauseDuration: const Duration(milliseconds: 100),
-        showTwoGlows: true,
-        child: GestureDetector(
-          // 音声入力
-          // onTap: () => {CalendarModal(context).showCalendarModal()},
-          onTapDown: (details) async => await _speak(),
-          onTapUp: (details) async => await _stop(),
-          child: CircleAvatar(
-            radius: 35,
-            child: Icon(
-              isRecording ? Icons.mic : Icons.mic_none,
-              color: Colors.white,
-            ),
-          ),
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: scan,
+        tooltip: 'QR SCAN',
+        child: Icon(Icons.add),
       ),
+      // floatingActionButtonLocation:
+      //     FloatingActionButtonLocation.miniCenterFloat,
+      // floatingActionButton: AvatarGlow(
+      //   endRadius: 75.0,
+      //   animate: isRecording,
+      //   duration: const Duration(milliseconds: 2000),
+      //   glowColor: Colors.blue,
+      //   repeatPauseDuration: const Duration(milliseconds: 100),
+      //   showTwoGlows: true,
+      //   child: GestureDetector(
+      //     // 音声入力
+      //     // onTap: () => {CalendarModal(context).showCalendarModal()},
+      //     onTapDown: (details) async => await _speak(),
+      //     onTapUp: (details) async => await _stop(),
+      //     child: CircleAvatar(
+      //       radius: 35,
+      //       child: Icon(
+      //         isRecording ? Icons.mic : Icons.mic_none,
+      //         color: Colors.white,
+      //       ),
+      //     ),
+      //   ),
+      // ),
     );
   }
 }
