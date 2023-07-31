@@ -45,6 +45,7 @@ dependencies:
   flutter_datetime_picker_plus: ^2.0.1
   flutter_launcher_icons: ^0.13.1
   nfc_manager: ^3.2.0
+  barcode_scan2: ^4.2.4
 
 dev_dependencies:
   flutter_test:
